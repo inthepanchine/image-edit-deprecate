@@ -1,17 +1,17 @@
 // library test file
 requirejs(["main"], (util) => {
 	// get elements
-	const container = document.getElementById("root");
 	const fileInput = document.getElementById("input");
 	const removeBtn = document.getElementById("remove");
+	const exportBtn = document.getElementById("export");
 
-	var canvas = new util.Canvas(
-		container,
-		1500,
-		750,
-		"border:1px solid #000000",
-	);
-	var file = new util.FileHandler(canvas, fileInput);
+	var editor = new util.Editor("canvas", 1500, 750, {
+		borderColor: "rgba(0, 0, 255, 1)",
+		cornerColor: "rgba(0, 0, 255, 1)",
+		cornerSize: 10,
+		transparentCorners: true,
+	});
+	var file = new util.FileHandler(editor, fileInput);
 
 	// add event listeners
 	fileInput.addEventListener(
@@ -22,7 +22,13 @@ requirejs(["main"], (util) => {
 		false,
 	);
 
+	// remove image on click
 	removeBtn.addEventListener("click", () => {
 		file.removeImage();
+	});
+
+	// export on click
+	exportBtn.addEventListener("click", () => {
+		console.log(file.export());
 	});
 });

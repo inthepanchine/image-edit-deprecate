@@ -1,3 +1,3 @@
 // index of module
-export { Canvas } from "./classes/canvas";
+export { Editor } from "./classes/editor";
 export { FileHandler } from "./classes/file";
