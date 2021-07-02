@@ -69,8 +69,8 @@ export class FileHandler {
 				// create CanvasImage for the loaded image
 				const canvasImage: CanvasImage = {
 					source: img,
-					position,
 					size: { width, height },
+					position,
 				};
 
 				// draw content on canvas
@@ -97,7 +97,7 @@ export class FileHandler {
 		}
 
 		// remove selected objects
-		this.editor.removeImage(selected);
+		this.editor.removeObject(selected);
 
 		// set this.input.value to empty string
 		this.input.value = "";

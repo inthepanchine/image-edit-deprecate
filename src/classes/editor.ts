@@ -3,7 +3,6 @@ import { CanvasImage, ImageStyle } from "../types/editorTypes";
 
 // import libraries
 import { fabric } from "fabric";
-import { Position } from "../types/globalTypes";
 
 /**
  *
@@ -47,8 +46,12 @@ export class Editor {
 		this.canvas.setWidth(width);
 		this.canvas.setHeight(height);
 
-		// if borderColor isn't undefined, set it in this.canvas
+		// assign style to this.style
 		this.style = style;
+
+		// on selection update or create bring the target on front
+		this.canvas.on("selection:updated", (e) => e.target.bringToFront());
+		this.canvas.on("selection:created", (e) => e.target.bringToFront());
 	}
 
 	/**
@@ -63,9 +66,11 @@ export class Editor {
 		const imgToLoad = new fabric.Image(img.source, {
 			left: img.position.x,
 			top: img.position.y,
-			width: img.size.width,
-			height: img.size.height,
 		});
+
+		// scale imageToLoad to img.size
+		imgToLoad.scaleToWidth(img.size.width);
+		imgToLoad.scaleToHeight(img.size.height);
 
 		// apply style to image
 		imgToLoad.set(this.style);
@@ -76,14 +81,32 @@ export class Editor {
 
 	/**
 	 *
-	 * Remove the image passed as argument
+	 * Remove the objects passed as argument
 	 *
-	 * @param {fabric.Object[]} objToRemove The image to remove
+	 * @param {fabric.Object[] | fabric.Object} objToRemove The objects to remove
 	 *
 	 */
-	removeImage = (objToRemove: fabric.Object[]) => {
-		for (const obj of objToRemove) {
-			this.canvas.remove(obj);
+	removeObject = (objToRemove: fabric.Object[] | fabric.Object) => {
+		// if param is an array loop through it and remove each element
+		// else just remove the object
+		if (Array.isArray(objToRemove)) {
+			for (const obj of objToRemove) {
+				// index of obj in this.canvas.objects
+				const index = this.canvas.getObjects().indexOf(obj);
+
+				// if obj exist in this.canvas.objects array remove it
+				if (index !== -1) {
+					this.canvas.remove(this.canvas.getObjects()[index]);
+				}
+			}
+		} else {
+			// index of obj in this.canvas.objects
+			const index = this.canvas.getObjects().indexOf(objToRemove);
+
+			// if obj exist in this.canvas.objects array remove it
+			if (index !== -1) {
+				this.canvas.remove(this.canvas.getObjects()[index]);
+			}
 		}
 	};
 }

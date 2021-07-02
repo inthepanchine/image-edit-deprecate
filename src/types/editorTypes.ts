@@ -4,7 +4,7 @@
  *
  */
 
-import { Position } from "./globalTypes";
+import { Position, Size } from "./globalTypes";
 
 /**
  *
@@ -34,5 +34,6 @@ export interface ImageStyle {
  */
 export interface CanvasImage {
 	source: HTMLImageElement;
+	size: Size;
 	position: Position;
 }
