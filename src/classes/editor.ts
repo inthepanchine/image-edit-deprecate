@@ -1,5 +1,6 @@
 // types import
 import { CanvasImage, ImageStyle } from "../types/editorTypes";
+import { Position } from "../types/globalTypes";
 
 // import libraries
 import { fabric } from "fabric";
@@ -154,5 +155,66 @@ export class Editor {
 		// when selectedRegion is deselected remove it from this.canvas
 		this.canvas.on("selection:updated", selectionUpdated);
 		this.canvas.on("selection:cleared", selectionUpdated);
+	};
+
+	/**
+	 *
+	 * Crop selected region of image
+	 *
+	 */
+	cropImage = () => {
+		// check if there is a selection
+		if (this.selection === false) {
+			throw new Error("No region selected");
+		}
+
+		// create copy of this.canvas.objects and remove this.selection which is the last item
+		const objects = this.canvas.getObjects();
+		objects.pop();
+
+		// represent object that intersect with selected region
+		const intersecObj: fabric.Object[] = [];
+
+		// loop through objects and if obj intersect with this.selectedRegion push it to intersecObj
+		for (const obj of objects) {
+			if (this.selectedRegion.intersectsWithObject(obj)) {
+				intersecObj.push(obj);
+			}
+		}
+
+		// get the image to crop which is the one on top of the intersecated objects
+		const imgToCrop = intersecObj[intersecObj.length - 1];
+
+		// check if the selected object's an image
+		if (!(imgToCrop instanceof fabric.Image)) {
+			throw new Error("Can't crop an object which is not an image");
+		}
+
+		// calculate the variation of x and y
+		const dx = this.selectedRegion.left - imgToCrop.left;
+		const dy = this.selectedRegion.top - imgToCrop.top;
+
+		// crop coordinate in relation to the image to crop
+		// if dx/dy is lower than 0 means that the this.selectedRegion's origin is before imgToCrop's origin so
+		// the crop should start from x/y = 0.
+		// if dx/dy is greater than 0 means that the this.selectedRegion's origin is after imgToCrop's origin so
+		// the crop should start from x/y = dx/dy
+		const crop: Position = {
+			x: dx >= 0 ? dx : 0,
+			y: dy >= 0 ? dy : 0,
+		};
+
+		// crop image
+		imgToCrop.set({
+			left: this.selectedRegion.left,
+			top: this.selectedRegion.top,
+			width: this.selectedRegion.getScaledWidth(),
+			height: this.selectedRegion.getScaledHeight(),
+			cropX: crop.x,
+			cropY: crop.y,
+		});
+
+		// set selected object to the cropped imagee
+		this.canvas.setActiveObject(imgToCrop);
 	};
 }
