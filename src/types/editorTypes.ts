@@ -27,13 +27,13 @@ export interface ImageStyle {
  *
  * Interface for images displayed on canvas
  *
+ * @param {HTMLImageElement | string} source The source of the image
  * @param {position} position The position of the image in the canvas
  * @param {Size} size The size of the image
- * @param {number} zIndex The z-index of the canvas where the image is drawn
  *
  */
 export interface CanvasImage {
-	source: HTMLImageElement;
+	source: HTMLImageElement | string;
 	size: Size;
 	position: Position;
 }
