@@ -6,6 +6,7 @@ requirejs(["main"], (util) => {
 	const exportBtn = document.getElementById("export");
 	const regionBtn = document.getElementById("region");
 	const cropBtn = document.getElementById("crop");
+	const blurBtn = document.getElementById("blur");
 
 	var editor = new util.Editor("canvas", 1500, 750, {
 		borderColor: "rgba(0, 0, 255, 1)",
@@ -39,6 +40,10 @@ requirejs(["main"], (util) => {
 	});
 
 	cropBtn.addEventListener("click", () => {
+		editor.cropImage();
+	});
+
+	blurBtn.addEventListener("click", () => {
 		editor.cropImage();
 	});
 });

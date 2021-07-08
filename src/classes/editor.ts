@@ -210,6 +210,17 @@ export class Editor {
 			top: this.selectedRegion.top,
 			width: this.selectedRegion.getScaledWidth(),
 			height: this.selectedRegion.getScaledHeight(),
+			cropX: crop.x + imgToCrop.cropX,
+			cropY: crop.y + imgToCrop.cropY,
+		});
+
+		// remove old image, add the cropped image and set it as selected object
+		this.canvas.setActiveObject(imgToCrop);
+	};
+			left: this.selectedRegion.left,
+			top: this.selectedRegion.top,
+			width: this.selectedRegion.getScaledWidth(),
+			height: this.selectedRegion.getScaledHeight(),
 			cropX: crop.x,
 			cropY: crop.y,
 		});
