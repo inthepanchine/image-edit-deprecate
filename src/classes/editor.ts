@@ -105,22 +105,10 @@ export class Editor {
 		// else just remove the object
 		if (Array.isArray(objToRemove)) {
 			for (const obj of objToRemove) {
-				// index of obj in this.canvas.objects
-				const index = this.canvas.getObjects().indexOf(obj);
-
-				// if obj exist in this.canvas.objects array remove it
-				if (index !== -1) {
-					this.canvas.remove(this.canvas.getObjects()[index]);
-				}
+				this.canvas.remove(obj);
 			}
 		} else {
-			// index of obj in this.canvas.objects
-			const index = this.canvas.getObjects().indexOf(objToRemove);
-
-			// if obj exist in this.canvas.objects array remove it
-			if (index !== -1) {
-				this.canvas.remove(this.canvas.getObjects()[index]);
-			}
+			this.canvas.remove(objToRemove);
 		}
 	};
 
