@@ -4,6 +4,7 @@ requirejs(["main"], (util) => {
 	const fileInput = document.getElementById("input");
 	const removeBtn = document.getElementById("remove");
 	const exportBtn = document.getElementById("export");
+	const regionBtn = document.getElementById("region");
 
 	var editor = new util.Editor("canvas", 1500, 750, {
 		borderColor: "rgba(0, 0, 255, 1)",
@@ -30,5 +31,9 @@ requirejs(["main"], (util) => {
 	// export on click
 	exportBtn.addEventListener("click", () => {
 		console.log(file.export());
+	});
+
+	regionBtn.addEventListener("click", () => {
+		editor.selectRegion();
 	});
 });

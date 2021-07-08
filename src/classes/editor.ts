@@ -18,6 +18,19 @@ export class Editor {
 	// canvas style
 	private style: ImageStyle;
 
+	// selected region rect
+	private selectedRegion = new fabric.Rect({
+		width: 100,
+		height: 100,
+		fill: "rgba(0, 0, 0, 0.5)",
+		left: 50,
+		top: 50,
+	});
+
+	// selection state, if false means there is no selection
+	// else there is
+	private selection = false;
+
 	/**
 	 *
 	 * Constructor of editor class
@@ -108,5 +121,38 @@ export class Editor {
 				this.canvas.remove(this.canvas.getObjects()[index]);
 			}
 		}
+	};
+
+	/**
+	 *
+	 * Select a region from canvas
+	 *
+	 */
+	selectRegion = () => {
+		// set selectedRegion rect style
+		this.selectedRegion.set(this.style);
+
+		// add it to canvas and set it as active object
+		this.canvas.add(this.selectedRegion);
+		this.canvas.setActiveObject(this.selectedRegion);
+
+		// set this.selection to true
+		this.selection = true;
+
+		// handle selection change
+		const selectionUpdated = () => {
+			// remove selection
+			this.removeObject(this.selectedRegion);
+
+			// set this.selection to false
+			this.selection = false;
+
+			// remove event listeners
+			this.canvas.off("selection:cleared", selectionUpdated);
+		};
+
+		// when selectedRegion is deselected remove it from this.canvas
+		this.canvas.on("selection:updated", selectionUpdated);
+		this.canvas.on("selection:cleared", selectionUpdated);
 	};
 }
