@@ -121,12 +121,15 @@ export class Editor {
 		// set selectedRegion rect style
 		this.selectedRegion.set(this.style);
 
-		// add it to canvas and set it as active object
-		this.canvas.add(this.selectedRegion);
-		this.canvas.setActiveObject(this.selectedRegion);
+		// check if there is already a selection
+		if (!this.selection) {
+			// add it to canvas and set it as active object
+			this.canvas.add(this.selectedRegion);
+			this.canvas.setActiveObject(this.selectedRegion);
 
-		// set this.selection to true
-		this.selection = true;
+			// set this.selection to true
+			this.selection = true;
+		}
 
 		// handle selection change
 		const selectionUpdated = () => {
@@ -137,6 +140,7 @@ export class Editor {
 			this.selection = false;
 
 			// remove event listeners
+			this.canvas.off("selection:updated", selectionUpdated);
 			this.canvas.off("selection:cleared", selectionUpdated);
 		};
 
