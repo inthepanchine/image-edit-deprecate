@@ -109,6 +109,7 @@ export class Editor extends fabric.Canvas {
 	 *
 	 */
 	cropImage = () => {
+		// get selected region
 		const region = this.regionSelection.getSelection("image");
 
 		// check if region.relativeTo is a fabric.Image for avoiding type-check error
@@ -123,8 +124,59 @@ export class Editor extends fabric.Canvas {
 				cropY: region.position.y + region.relativeTo.cropY,
 			});
 
-			// remove old image, add the cropped image and set it as selected object
+			// set cropped image as selected object
 			this.setActiveObject(region.relativeTo);
+		}
+	};
+
+	/**
+	 *
+	 * Blur selected region of image
+	 *
+	 * @param {number} [value] The blur's value, in a range from 0 to 1. Its default value is 1s default value is 1
+	 *
+	 */
+	blurRegion = (value: number = 1) => {
+		// get selected region
+		const region = this.regionSelection.getSelection("image");
+
+		// check if region.relativeTo is a fabric.Image for avoiding type-check error
+		if (region.relativeTo instanceof fabric.Image) {
+			// create region image from image to blur
+			const blurredRegion = new fabric.Image(region.relativeTo.getElement(), {
+				left: this.regionSelection.selection.left,
+				top: this.regionSelection.selection.top,
+				width: region.size.width,
+				height: region.size.height,
+				scaleX: region.relativeTo.scaleX,
+				scaleY: region.relativeTo.scaleY,
+				cropX: region.position.x + region.relativeTo.cropX,
+				cropY: region.position.y + region.relativeTo.cropY,
+			});
+
+			// check if blur value is accettable
+			if (value < 0 || 1 < value) {
+				throw new Error("Error: blur's value must be between 0 and 1");
+			}
+
+			// add blur to blurredRegion's filter and apply it
+			blurredRegion.filters.push(
+				new fabric.Image.filters.Blur({
+					blur: value,
+				}),
+			);
+			blurredRegion.applyFilters();
+
+			// create a group containing the blurred region and the image to blur
+			const blurredImage = new fabric.Group(
+				[region.relativeTo, blurredRegion],
+				this.style,
+			);
+
+			// remove old image, add blurred image to the canvas and set it as active object
+			this.remove(region.relativeTo);
+			this.add(blurredImage);
+			this.setActiveObject(blurredImage);
 		}
 	};
 }

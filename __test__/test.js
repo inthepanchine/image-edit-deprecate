@@ -44,6 +44,6 @@ requirejs(["main"], (util) => {
 	});
 
 	blurBtn.addEventListener("click", () => {
-		editor.cropImage();
+		editor.blurRegion(1);
 	});
 });
