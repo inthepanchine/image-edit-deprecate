@@ -1,9 +1,10 @@
 // types import
 import { CanvasImage, ImageStyle } from "../types/editorTypes";
-import { Position } from "../types/globalTypes";
+import { Position, Size } from "../types/globalTypes";
 
 // import libraries
 import { fabric } from "fabric";
+import { Selection } from "./selection";
 
 /**
  *
@@ -12,25 +13,12 @@ import { fabric } from "fabric";
  * This class handle all the canvas use
  *
  */
-export class Editor {
-	// fabric canvas
-	canvas: fabric.Canvas;
-
+export class Editor extends fabric.Canvas {
 	// canvas style
-	private style: ImageStyle;
+	style: ImageStyle;
 
-	// selected region rect
-	private selectedRegion = new fabric.Rect({
-		width: 100,
-		height: 100,
-		fill: "rgba(0, 0, 0, 0.5)",
-		left: 50,
-		top: 50,
-	});
-
-	// selection state, if false means there is no selection
-	// else there is
-	private selection = false;
+	// region's selection
+	regionSelection: Selection;
 
 	/**
 	 *
@@ -53,24 +41,27 @@ export class Editor {
 			transparentCorners: true,
 		},
 	) {
-		// init this.canvas
-		this.canvas = new fabric.Canvas(canvasId);
+		// super call
+		super(canvasId);
 
 		// style canvas
-		this.canvas.setWidth(width);
-		this.canvas.setHeight(height);
+		this.setWidth(width);
+		this.setHeight(height);
 
 		// assign style to this.style
 		this.style = style;
 
 		// on selection update or create bring the target on front
-		this.canvas.on("selection:updated", (e) => e.target.bringToFront());
-		this.canvas.on("selection:created", (e) => e.target.bringToFront());
+		this.on("selection:updated", (e) => e.target.bringToFront());
+		this.on("selection:created", (e) => e.target.bringToFront());
+
+		// init selection
+		this.regionSelection = new Selection(this);
 	}
 
 	/**
 	 *
-	 * Draw an image on this.canvas
+	 * Draw an image on the editor
 	 *
 	 * @param {CanvasImage} img The image to load
 	 *
@@ -90,12 +81,12 @@ export class Editor {
 		imgToLoad.set(this.style);
 
 		// draw image on this.canvas
-		this.canvas.add(imgToLoad);
+		this.add(imgToLoad);
 	};
 
 	/**
 	 *
-	 * Remove the objects passed as argument
+	 * Remove the object(s) passed as argument
 	 *
 	 * @param {fabric.Object[] | fabric.Object} objToRemove The objects to remove
 	 *
@@ -105,48 +96,11 @@ export class Editor {
 		// else just remove the object
 		if (Array.isArray(objToRemove)) {
 			for (const obj of objToRemove) {
-				this.canvas.remove(obj);
+				this.remove(obj);
 			}
 		} else {
-			this.canvas.remove(objToRemove);
+			this.remove(objToRemove);
 		}
-	};
-
-	/**
-	 *
-	 * Select a region from canvas
-	 *
-	 */
-	selectRegion = () => {
-		// set selectedRegion rect style
-		this.selectedRegion.set(this.style);
-
-		// check if there is already a selection
-		if (!this.selection) {
-			// add it to canvas and set it as active object
-			this.canvas.add(this.selectedRegion);
-			this.canvas.setActiveObject(this.selectedRegion);
-
-			// set this.selection to true
-			this.selection = true;
-		}
-
-		// handle selection change
-		const selectionUpdated = () => {
-			// remove selection
-			this.removeObject(this.selectedRegion);
-
-			// set this.selection to false
-			this.selection = false;
-
-			// remove event listeners
-			this.canvas.off("selection:updated", selectionUpdated);
-			this.canvas.off("selection:cleared", selectionUpdated);
-		};
-
-		// when selectedRegion is deselected remove it from this.canvas
-		this.canvas.on("selection:updated", selectionUpdated);
-		this.canvas.on("selection:cleared", selectionUpdated);
 	};
 
 	/**
@@ -155,69 +109,22 @@ export class Editor {
 	 *
 	 */
 	cropImage = () => {
-		// check if there is a selection
-		if (this.selection === false) {
-			throw new Error("No region selected");
+		const region = this.regionSelection.getSelection("image");
+
+		// check if region.relativeTo is a fabric.Image for avoiding type-check error
+		if (region.relativeTo instanceof fabric.Image) {
+			// crop image
+			region.relativeTo.set({
+				left: this.regionSelection.selection.left,
+				top: this.regionSelection.selection.top,
+				width: region.size.width,
+				height: region.size.height,
+				cropX: region.position.x + region.relativeTo.cropX,
+				cropY: region.position.y + region.relativeTo.cropY,
+			});
+
+			// remove old image, add the cropped image and set it as selected object
+			this.setActiveObject(region.relativeTo);
 		}
-
-		// create copy of this.canvas.objects and remove this.selection which is the last item
-		const objects = this.canvas.getObjects();
-		objects.pop();
-
-		// represent object that intersect with selected region
-		const intersecObj: fabric.Object[] = [];
-
-		// loop through objects and if obj intersect with this.selectedRegion push it to intersecObj
-		for (const obj of objects) {
-			if (this.selectedRegion.intersectsWithObject(obj)) {
-				intersecObj.push(obj);
-			}
-		}
-
-		// get the image to crop which is the one on top of the intersecated objects
-		const imgToCrop = intersecObj[intersecObj.length - 1];
-
-		// check if the selected object's an image
-		if (!(imgToCrop instanceof fabric.Image)) {
-			throw new Error("Can't crop an object which is not an image");
-		}
-
-		// calculate the variation of x and y
-		const dx = this.selectedRegion.left - imgToCrop.left;
-		const dy = this.selectedRegion.top - imgToCrop.top;
-
-		// crop coordinate in relation to the image to crop
-		// if dx/dy is lower than 0 means that the this.selectedRegion's origin is before imgToCrop's origin so
-		// the crop should start from x/y = 0.
-		// if dx/dy is greater than 0 means that the this.selectedRegion's origin is after imgToCrop's origin so
-		// the crop should start from x/y = dx/dy
-		const crop: Position = {
-			x: dx >= 0 ? dx : 0,
-			y: dy >= 0 ? dy : 0,
-		};
-
-		// crop image
-		imgToCrop.set({
-			left: this.selectedRegion.left,
-			top: this.selectedRegion.top,
-			width: this.selectedRegion.getScaledWidth(),
-			height: this.selectedRegion.getScaledHeight(),
-			cropX: crop.x + imgToCrop.cropX,
-			cropY: crop.y + imgToCrop.cropY,
-		});
-
-		// remove old image, add the cropped image and set it as selected object
-		this.canvas.setActiveObject(imgToCrop);
-	};
-			left: this.selectedRegion.left,
-			top: this.selectedRegion.top,
-			width: this.selectedRegion.getScaledWidth(),
-			height: this.selectedRegion.getScaledHeight(),
-			cropX: crop.x,
-			cropY: crop.y,
-		});
-
-		// set selected object to the cropped imagee
-		this.canvas.setActiveObject(imgToCrop);
 	};
 }

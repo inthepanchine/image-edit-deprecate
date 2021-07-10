@@ -36,7 +36,7 @@ requirejs(["main"], (util) => {
 	});
 
 	regionBtn.addEventListener("click", () => {
-		editor.selectRegion();
+		editor.regionSelection.selectRegion();
 	});
 
 	cropBtn.addEventListener("click", () => {

@@ -4,9 +4,6 @@ import { CanvasImage } from "../types/editorTypes";
 // import classes
 import { Editor } from "./editor";
 
-// library import
-import { saveAs } from "file-saver";
-
 /**
  *
  * File class
@@ -46,24 +43,19 @@ export class FileHandler {
 			img.onload = () => {
 				// scale image to fit canvas
 				const imageRatio = img.width / img.height;
-				let width = this.editor.canvas.width;
+				let width = this.editor.width;
 				let height = width / imageRatio;
 
-				if (height > this.editor.canvas.height) {
-					height = this.editor.canvas.height;
+				if (height > this.editor.height) {
+					height = this.editor.height;
 					width = height * imageRatio;
 				}
 
 				// set position as center of the canvas
 				const position = {
-					x:
-						width < this.editor.canvas.width
-							? (this.editor.canvas.width - width) / 2
-							: 0,
+					x: width < this.editor.width ? (this.editor.width - width) / 2 : 0,
 					y:
-						height < this.editor.canvas.height
-							? (this.editor.canvas.height - height) / 2
-							: 0,
+						height < this.editor.height ? (this.editor.height - height) / 2 : 0,
 				};
 
 				// create CanvasImage for the loaded image
@@ -89,7 +81,7 @@ export class FileHandler {
 	 */
 	removeImage = () => {
 		// get currente selected objects
-		const selected = this.editor.canvas.getActiveObjects();
+		const selected = this.editor.getActiveObjects();
 
 		// if selected is empty throw an error
 		if (selected.length === 0) {
@@ -111,6 +103,6 @@ export class FileHandler {
 	 *
 	 */
 	export = (): string => {
-		return this.editor.canvas.toDataURL();
+		return this.editor.toDataURL();
 	};
 }
