@@ -1,31 +1,17 @@
-/**
- *
- * Type declaration not related to a specific class
- *
- */
+/** Type declaration not related to a specific class. */
 
-/**
- *
- * Interface which describe sizes of an element
- *
- * @param {number} width The width of the element
- * @param {number} height The height of the element
- *
- */
+/** The sizes of an element. */
 export interface Size {
+	/* The width of the element. */
 	width: number;
+	/* The height of the element. */
 	height: number;
 }
 
-/**
- *
- * Interface which describe the position with the x-y axis
- *
- * @param {number} x The x coordinate
- * @param {number} y The y coordinate
- *
- */
+/** The position of an element in a x-y axis coordinate system. */
 export interface Position {
+	/* The x coordinate. */
 	x: number;
+	/* The y coordinate. */
 	y: number;
 }

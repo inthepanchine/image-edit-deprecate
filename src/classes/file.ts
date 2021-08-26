@@ -5,19 +5,23 @@ import { CanvasImage } from "../types/editorTypes";
 import { Editor } from "./editor";
 
 /**
+ * File class.
  *
- * File class
- *
- * This class handle the file use
- *
+ * This class handle files usage.
  */
 export class FileHandler {
-	// the input element
+	/** The input where the file are loaded from. */
 	private input: HTMLInputElement;
 
-	// the editor to interact with
+	/** The editor where the file will be loaded in/removed from. */
 	private editor: Editor;
 
+	/**
+	 * FileHandler class constructor.
+	 *
+	 * @param editor The editor where the file will be loaded in/removed from.
+	 * @param input The input where the file are loaded from.
+	 */
 	constructor(editor: Editor, input: HTMLInputElement) {
 		// assign editor to this.editor
 		this.editor = editor;
@@ -27,24 +31,27 @@ export class FileHandler {
 	}
 
 	/**
+	 * Load images contained in imgFiles into this.editor.
 	 *
-	 * Load the images into the editor
-	 *
-	 * @param {FileList} imgFilesList The list of images' files
-	 *
+	 * @param imgFiles The list of images' files that the user wants to load.
 	 */
-	loadImage = (imgFilesList: FileList) => {
-		// loop through imgFilesList and load each image into the editor
-		for (const imgFile of imgFilesList) {
+	loadImage = (imgFiles: FileList) => {
+		// loop through imgFiles and load each image into the editor
+		for (const imgFile of imgFiles) {
 			// create new image
 			const img = new Image();
 
 			// when a new image is loaded scale and draw it into the canvas
 			img.onload = () => {
+				// check this.editor.width/height isn't null
+				if (!(this.editor.width && this.editor.height)) {
+					throw new Error("this.editor is null.");
+				}
+
 				// scale image to fit canvas
 				const imageRatio = img.width / img.height;
-				let width = this.editor.width;
-				let height = width / imageRatio;
+				var width = this.editor.width;
+				var height = width / imageRatio;
 
 				if (height > this.editor.height) {
 					height = this.editor.height;
@@ -74,33 +81,28 @@ export class FileHandler {
 		}
 	};
 
-	/**
-	 *
-	 * Remove the selected objects
-	 *
-	 */
+	/** Remove the selected objects. */
 	removeImage = () => {
-		// get currente selected objects
+		// get current selected objects
 		const selected = this.editor.getActiveObjects();
 
 		// if selected is empty throw an error
 		if (selected.length === 0) {
-			throw new Error("No selected image");
+			throw new Error("No selected image.");
 		}
 
 		// remove selected objects
 		this.editor.removeObject(selected);
 
-		// set this.input.value to empty string
+		// set this.input.value to empty string for avoiding conflict when
+		// reimporting the image in the canvas
 		this.input.value = "";
 	};
 
 	/**
+	 * Export canvas as base64 string.
 	 *
-	 * Export canvas as base64
-	 *
-	 * @return {string} The encoded canvas
-	 *
+	 * @return The encoded canvas as base64 string.
 	 */
 	export = (): string => {
 		return this.editor.toDataURL();
