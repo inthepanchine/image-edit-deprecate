@@ -6,6 +6,7 @@
 	"scripts": {
 		"build:webpack:prod": "webpack --mode production --progress --stats-error-details",
 		"build:webpack:dev": "webpack --mode development --progress --watch --stats-error-details",
+		"build:tsc:dev": "tsc --watch",
 		"test": "serve -s __test__"
 	},
 	"repository": {
