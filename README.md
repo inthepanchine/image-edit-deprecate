@@ -15,7 +15,7 @@ The ways for installing the projects are two:
 In your `node`/`npm` project run:
 
 ```bash
-$ npm install image-edit
+$ npm install @inthepanchine/image-edit
 ```
 
 If your project is a typescript project, install also the types declaration

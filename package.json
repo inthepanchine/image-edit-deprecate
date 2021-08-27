@@ -1,5 +1,5 @@
 {
-	"name": "image-edit",
+	"name": "@inthepanchine/image-edit",
 	"version": "0.0.1",
 	"description": "A set of utilities for manipulating images.",
 	"main": "src/index.ts",
