@@ -11,7 +11,10 @@ import { Selection } from "./selection";
  *
  * This class handle all the canvas use.
  */
-export class Editor extends fabric.Canvas {
+export class Editor {
+	/** Canvas where images are displayed. */
+	canvas: fabric.Canvas;
+
 	/**
 	 * Style of the resize of image.
 	 *
@@ -37,19 +40,19 @@ export class Editor extends fabric.Canvas {
 	 * @param borderColor The selection's border color.
 	 */
 	constructor(canvasId: string, size: Size, style: ImageStyle) {
-		// super call
-		super(canvasId);
+		// init this.canvas
+		this.canvas = new fabric.Canvas(canvasId);
 
 		// style canvas
-		this.setWidth(size.width);
-		this.setHeight(size.height);
+		this.canvas.setWidth(size.width);
+		this.canvas.setHeight(size.height);
 
 		// assign style to this.style
 		this.imgStyle = style;
 
 		// on selection update or create bring the target on front
-		this.on("selection:updated", (e) => e.target?.bringToFront());
-		this.on("selection:created", (e) => e.target?.bringToFront());
+		this.canvas.on("selection:updated", (e) => e.target?.bringToFront());
+		this.canvas.on("selection:created", (e) => e.target?.bringToFront());
 	}
 
 	/**
@@ -72,7 +75,7 @@ export class Editor extends fabric.Canvas {
 		imgToLoad.set(this.imgStyle);
 
 		// draw image on this.canvas
-		this.add(imgToLoad);
+		this.canvas.add(imgToLoad);
 	};
 
 	/**
@@ -85,10 +88,10 @@ export class Editor extends fabric.Canvas {
 		// else just remove the object
 		if (Array.isArray(objToRemove)) {
 			for (const obj of objToRemove) {
-				this.remove(obj);
+				this.canvas.remove(obj);
 			}
 		} else {
-			this.remove(objToRemove);
+			this.canvas.remove(objToRemove);
 		}
 	};
 
@@ -113,7 +116,7 @@ export class Editor extends fabric.Canvas {
 		});
 
 		// set cropped image as selected object
-		this.setActiveObject(region.relativeTo);
+		this.canvas.setActiveObject(region.relativeTo);
 	};
 
 	/**
@@ -167,8 +170,8 @@ export class Editor extends fabric.Canvas {
 		);
 
 		// remove old image, add blurred image to the canvas and set it as active object
-		this.remove(region.relativeTo);
-		this.add(blurredImage);
-		this.setActiveObject(blurredImage);
+		this.canvas.remove(region.relativeTo);
+		this.canvas.add(blurredImage);
+		this.canvas.setActiveObject(blurredImage);
 	};
 }

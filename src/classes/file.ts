@@ -44,25 +44,26 @@ export class FileHandler {
 			// when a new image is loaded scale and draw it into the canvas
 			img.onload = () => {
 				// check this.editor.width/height isn't null
-				if (!(this.editor.width && this.editor.height)) {
+				if (!(this.editor.canvas.width && this.editor.canvas.height)) {
 					throw new Error("this.editor is null.");
 				}
 
 				// scale image to fit canvas
 				const imageRatio = img.width / img.height;
-				var width = this.editor.width;
+				var width = this.editor.canvas.width;
 				var height = width / imageRatio;
 
-				if (height > this.editor.height) {
-					height = this.editor.height;
+				if (height > this.editor.canvas.height) {
+					height = this.editor.canvas.height;
 					width = height * imageRatio;
 				}
 
 				// set position as center of the canvas
 				const position = {
-					x: width < this.editor.width ? (this.editor.width - width) / 2 : 0,
+					x:
+						width < this.editor.canvas.width ? (this.editor.canvas.width - width) / 2 : 0,
 					y:
-						height < this.editor.height ? (this.editor.height - height) / 2 : 0,
+						height < this.editor.canvas.height ? (this.editor.canvas.height - height) / 2 : 0,
 				};
 
 				// create CanvasImage for the loaded image
@@ -84,7 +85,7 @@ export class FileHandler {
 	/** Remove the selected objects. */
 	removeImage = () => {
 		// get current selected objects
-		const selected = this.editor.getActiveObjects();
+		const selected = this.editor.canvas.getActiveObjects();
 
 		// if selected is empty throw an error
 		if (selected.length === 0) {
@@ -105,6 +106,6 @@ export class FileHandler {
 	 * @return The encoded canvas as base64 string.
 	 */
 	export = (): string => {
-		return this.editor.toDataURL();
+		return this.editor.canvas.toDataURL();
 	};
 }
