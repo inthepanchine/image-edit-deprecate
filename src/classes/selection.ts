@@ -124,19 +124,31 @@ export class Selection {
 			throw new Error("Can't crop an object which is not an image.");
 		}
 
+
 		// check if this.selection and intersectedObj.scaleX/scaleY
 		// aren't null
-		if (
-			!(
-				this.selection.left &&
-				this.selection.top &&
-				intersectedObj.left &&
-				intersectedObj.top &&
-				intersectedObj.scaleX &&
-				intersectedObj.scaleY
-			)
-		) {
-			throw new Error("this.selection or intersecedObj are undefined.");
+		if (this.selection.left === undefined) {
+			throw new Error("this.selection.left is undefined.");
+		}
+
+		if (this.selection.top === undefined) {
+			throw new Error("this.selection.top is undefined.");
+		}
+
+		if (intersectedObj.left === undefined) {
+			throw new Error("intersectedObj.left is undefined.");
+		}
+
+		if (intersectedObj.top === undefined) {
+			throw new Error("intersectedObj.top is undefined.");
+		}
+
+		if (intersectedObj.scaleX === undefined) {
+			throw new Error("intersectedObj.scaleX is undefined.");
+		}
+
+		if (intersectedObj.scaleY === undefined) {
+			throw new Error("intersectedObj.scaleY is undefined.");
 		}
 
 		// calculate the variation of x and y

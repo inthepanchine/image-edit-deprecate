@@ -30,7 +30,7 @@ export class Editor {
 	};
 
 	/** Selectable region. */
-	regionSelection: Selection = new Selection(this);
+	regionSelection: Selection;
 
 	/**
 	 * Constructor of editor class.
@@ -46,6 +46,9 @@ export class Editor {
 		// style canvas
 		this.canvas.setWidth(size.width);
 		this.canvas.setHeight(size.height);
+
+		// init selection
+		this.regionSelection = new Selection(this);
 
 		// assign style to this.style
 		this.imgStyle = style;
@@ -101,7 +104,11 @@ export class Editor {
 		const region = this.regionSelection.getSelection();
 
 		// check if region.relativeTo.CropX/CropY isn't null
-		if (!(region.relativeTo.cropX && region.relativeTo.cropY)) {
+		if (region.relativeTo.cropX === undefined) {
+			throw new Error("region.relativeTo is null.");
+		}
+
+		if (region.relativeTo.cropY === undefined) {
 			throw new Error("region.relativeTo is null.");
 		}
 
@@ -128,8 +135,13 @@ export class Editor {
 		// get selected region
 		const region = this.regionSelection.getSelection();
 
-		if (!(region.relativeTo.cropX && region.relativeTo.cropY)) {
-			throw new Error("region.relativeTo is null.");
+		// check if region.relativeTo.CropX/CropY isn't null
+		if (region.relativeTo.cropX === undefined) {
+			throw new Error("region.relativeTo.cropX is null.");
+		}
+
+		if (region.relativeTo.cropY === undefined) {
+			throw new Error("region.relativeTo.cropX is null.");
 		}
 
 		// create region image from image to blur
