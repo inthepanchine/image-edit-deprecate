@@ -8,7 +8,7 @@ requirejs(["main"], (util) => {
 	const cropBtn = document.getElementById("crop");
 	const blurBtn = document.getElementById("blur");
 
-	var editor = new util.Editor("canvas", 1500, 750, {
+	var editor = new util.Editor("canvas", { width: 1500, height: 750 }, {
 		borderColor: "rgba(0, 0, 255, 1)",
 		cornerColor: "rgba(0, 0, 255, 1)",
 		cornerSize: 10,

@@ -11,14 +11,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/liamcaccetta/cms-image-edit.git"
+		"url": "git+https://github.com/inthepanchine/image-edit.git"
 	},
 	"author": "Liam Caccetta",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/liamcaccetta/cms-image-edit/issues"
+		"url": "https://github.com/inthepanchine/image-edit/issues"
 	},
-	"homepage": "https://github.com/liamcaccetta/cms-image-edit#readme",
+	"homepage": "https://github.com/inthepanchine/image-edit#readme",
 	"devDependencies": {
 		"@babel/cli": "^7.14.5",
 		"@babel/core": "^7.14.6",
