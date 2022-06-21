@@ -50,8 +50,8 @@ export class Selection {
 
 		// set selection rect position to the center of the editor
 		this.selection.set({
-			left: this.editor.getWidth() / 2,
-			top: this.editor.getHeight() / 2,
+			left: this.editor.canvas.getWidth() / 2,
+			top: this.editor.canvas.getHeight() / 2,
 		});
 	}
 
@@ -63,8 +63,8 @@ export class Selection {
 		// check if there is already a selection
 		if (!this.isSelected) {
 			// add it to editor and set it as active object
-			this.editor.add(this.selection);
-			this.editor.setActiveObject(this.selection);
+			this.editor.canvas.add(this.selection);
+			this.editor.canvas.setActiveObject(this.selection);
 
 			// set this.isSelected to true
 			this.isSelected = true;
@@ -79,13 +79,13 @@ export class Selection {
 			this.isSelected = false;
 
 			// remove event listeners
-			this.editor.off("selection:updated", selectionUpdated);
-			this.editor.off("selection:cleared", selectionUpdated);
+			this.editor.canvas.off("selection:updated", selectionUpdated);
+			this.editor.canvas.off("selection:cleared", selectionUpdated);
 		};
 
 		// when selection is deselected remove it from this.editor
-		this.editor.on("selection:updated", selectionUpdated);
-		this.editor.on("selection:cleared", selectionUpdated);
+		this.editor.canvas.on("selection:updated", selectionUpdated);
+		this.editor.canvas.on("selection:cleared", selectionUpdated);
 	};
 
 	/**
@@ -102,7 +102,7 @@ export class Selection {
 
 		// create copy of this.editor.objects, remove this.selection and reverse
 		// the array
-		const objects = this.editor.getObjects();
+		const objects = this.editor.canvas.getObjects();
 		objects.pop();
 		objects.reverse();
 
@@ -124,19 +124,31 @@ export class Selection {
 			throw new Error("Can't crop an object which is not an image.");
 		}
 
+
 		// check if this.selection and intersectedObj.scaleX/scaleY
 		// aren't null
-		if (
-			!(
-				this.selection.left &&
-				this.selection.top &&
-				intersectedObj.left &&
-				intersectedObj.top &&
-				intersectedObj.scaleX &&
-				intersectedObj.scaleY
-			)
-		) {
-			throw new Error("this.selection or intersecedObj are undefined.");
+		if (this.selection.left === undefined) {
+			throw new Error("this.selection.left is undefined.");
+		}
+
+		if (this.selection.top === undefined) {
+			throw new Error("this.selection.top is undefined.");
+		}
+
+		if (intersectedObj.left === undefined) {
+			throw new Error("intersectedObj.left is undefined.");
+		}
+
+		if (intersectedObj.top === undefined) {
+			throw new Error("intersectedObj.top is undefined.");
+		}
+
+		if (intersectedObj.scaleX === undefined) {
+			throw new Error("intersectedObj.scaleX is undefined.");
+		}
+
+		if (intersectedObj.scaleY === undefined) {
+			throw new Error("intersectedObj.scaleY is undefined.");
 		}
 
 		// calculate the variation of x and y

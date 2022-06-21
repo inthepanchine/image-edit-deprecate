@@ -17,7 +17,7 @@ module.exports = (env, options) => {
 
 		// module
 		module: {
-			// create rule for ts files, that are passed to bebel-loader
+			// create rule for ts files, that are passed to babel-loader
 			rules: [
 				{
 					test: /\.ts$/,

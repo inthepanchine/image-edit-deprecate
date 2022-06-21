@@ -11,7 +11,10 @@ import { Selection } from "./selection";
  *
  * This class handle all the canvas use.
  */
-export class Editor extends fabric.Canvas {
+export class Editor {
+	/** Canvas where images are displayed. */
+	canvas: fabric.Canvas;
+
 	/**
 	 * Style of the resize of image.
 	 *
@@ -27,7 +30,7 @@ export class Editor extends fabric.Canvas {
 	};
 
 	/** Selectable region. */
-	regionSelection: Selection = new Selection(this);
+	regionSelection: Selection;
 
 	/**
 	 * Constructor of editor class.
@@ -37,19 +40,22 @@ export class Editor extends fabric.Canvas {
 	 * @param borderColor The selection's border color.
 	 */
 	constructor(canvasId: string, size: Size, style: ImageStyle) {
-		// super call
-		super(canvasId);
+		// init this.canvas
+		this.canvas = new fabric.Canvas(canvasId);
 
 		// style canvas
-		this.setWidth(size.width);
-		this.setHeight(size.height);
+		this.canvas.setWidth(size.width);
+		this.canvas.setHeight(size.height);
+
+		// init selection
+		this.regionSelection = new Selection(this);
 
 		// assign style to this.style
 		this.imgStyle = style;
 
 		// on selection update or create bring the target on front
-		this.on("selection:updated", (e) => e.target?.bringToFront());
-		this.on("selection:created", (e) => e.target?.bringToFront());
+		this.canvas.on("selection:updated", (e) => e.target?.bringToFront());
+		this.canvas.on("selection:created", (e) => e.target?.bringToFront());
 	}
 
 	/**
@@ -72,7 +78,7 @@ export class Editor extends fabric.Canvas {
 		imgToLoad.set(this.imgStyle);
 
 		// draw image on this.canvas
-		this.add(imgToLoad);
+		this.canvas.add(imgToLoad);
 	};
 
 	/**
@@ -85,10 +91,10 @@ export class Editor extends fabric.Canvas {
 		// else just remove the object
 		if (Array.isArray(objToRemove)) {
 			for (const obj of objToRemove) {
-				this.remove(obj);
+				this.canvas.remove(obj);
 			}
 		} else {
-			this.remove(objToRemove);
+			this.canvas.remove(objToRemove);
 		}
 	};
 
@@ -98,7 +104,11 @@ export class Editor extends fabric.Canvas {
 		const region = this.regionSelection.getSelection();
 
 		// check if region.relativeTo.CropX/CropY isn't null
-		if (!(region.relativeTo.cropX && region.relativeTo.cropY)) {
+		if (region.relativeTo.cropX === undefined) {
+			throw new Error("region.relativeTo is null.");
+		}
+
+		if (region.relativeTo.cropY === undefined) {
 			throw new Error("region.relativeTo is null.");
 		}
 
@@ -113,7 +123,7 @@ export class Editor extends fabric.Canvas {
 		});
 
 		// set cropped image as selected object
-		this.setActiveObject(region.relativeTo);
+		this.canvas.setActiveObject(region.relativeTo);
 	};
 
 	/**
@@ -125,8 +135,13 @@ export class Editor extends fabric.Canvas {
 		// get selected region
 		const region = this.regionSelection.getSelection();
 
-		if (!(region.relativeTo.cropX && region.relativeTo.cropY)) {
-			throw new Error("region.relativeTo is null.");
+		// check if region.relativeTo.CropX/CropY isn't null
+		if (region.relativeTo.cropX === undefined) {
+			throw new Error("region.relativeTo.cropX is null.");
+		}
+
+		if (region.relativeTo.cropY === undefined) {
+			throw new Error("region.relativeTo.cropX is null.");
 		}
 
 		// create region image from image to blur
@@ -167,8 +182,8 @@ export class Editor extends fabric.Canvas {
 		);
 
 		// remove old image, add blurred image to the canvas and set it as active object
-		this.remove(region.relativeTo);
-		this.add(blurredImage);
-		this.setActiveObject(blurredImage);
+		this.canvas.remove(region.relativeTo);
+		this.canvas.add(blurredImage);
+		this.canvas.setActiveObject(blurredImage);
 	};
 }
