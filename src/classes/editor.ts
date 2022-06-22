@@ -176,10 +176,13 @@ export class Editor {
 		blurredRegion.applyFilters();
 
 		// create a group containing the blurred region and the image to blur
-		const blurredImage = new fabric.Group(
+		// and create a image from it
+		const blurredGroup = new fabric.Group(
 			[region.relativeTo, blurredRegion],
 			this.imgStyle,
 		);
+
+		const blurredImage = new fabric.Image(blurredGroup.toCanvasElement())
 
 		// remove old image, add blurred image to the canvas and set it as active object
 		this.canvas.remove(region.relativeTo);
