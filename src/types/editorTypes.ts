@@ -13,6 +13,8 @@ export interface ImageStyle {
 	cornerSize: number;
 	/* Define whether corners are transparent or not. */
 	transparentCorners: boolean;
+	/* Define whether the image is rotable or not. */
+	lockRotation: boolean;
 }
 
 /** Interface for images displayed on canvas. */
