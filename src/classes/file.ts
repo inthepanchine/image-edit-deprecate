@@ -3,6 +3,7 @@ import { CanvasImage } from "../types/editorTypes";
 
 // import classes
 import { Editor } from "./editor";
+import { Utils } from "./utils";
 
 /**
  * File class.
@@ -103,9 +104,14 @@ export class FileHandler {
 	/**
 	 * Export canvas as base64 string.
 	 *
-	 * @return The encoded canvas as base64 string.
+	 * @return The encoded canvas as base64.
 	 */
 	export = (): string => {
-		return this.editor.canvas.toDataURL();
+		// remove selection / deselect selected object
+		this.editor.canvas.discardActiveObject().renderAll();
+
+		// trim white spaces and return
+		const utils = new Utils();
+		return  utils.trimCanvas(this.editor.canvas);
 	};
 }
