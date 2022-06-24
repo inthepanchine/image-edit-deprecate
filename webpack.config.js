@@ -42,7 +42,7 @@ module.exports = (env, options) => {
 					? path.resolve(__dirname, "./__test__/scripts")
 					: path.resolve(__dirname, "dist"),
 			filename: "[name].js",
-			library: ["cms-image-edit"],
+			library: ["image-edit"],
 			libraryTarget: "umd",
 		},
 	};
