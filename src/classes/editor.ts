@@ -39,14 +39,19 @@ export class Editor {
 	 * @param canvasId The id of the canvas.
 	 * @param size The size of the canvas.
 	 * @param style The style of the image.
+	 * @param isResponsive Defines wether the canvas is reponsive or not.
 	 */
-	constructor(canvasId: string, size: Size, style: ImageStyle) {
+	constructor(
+		canvasId: string,
+		size: Size,
+		style: ImageStyle,
+		isResponsive: boolean
+	) {
 		// init this.canvas
 		this.canvas = new fabric.Canvas(canvasId);
 
 		// style canvas
-		this.canvas.setWidth(size.width);
-		this.canvas.setHeight(size.height);
+		this.canvas.setDimensions(size);
 
 		// init selection
 		this.regionSelection = new Selection(this);
@@ -57,6 +62,12 @@ export class Editor {
 		// on selection update or create bring the target on front
 		this.canvas.on("selection:updated", (e) => e.target?.bringToFront());
 		this.canvas.on("selection:created", (e) => e.target?.bringToFront());
+
+		// if canvas has to be responsive add event listener on window resize
+		if (isResponsive) {
+			this.canvasResponsive();
+			window.addEventListener("resize", () => this.canvasResponsive());
+		}
 	}
 
 	/**
@@ -199,4 +210,37 @@ export class Editor {
 		this.canvas.add(blurredImage);
 		this.canvas.setActiveObject(blurredImage);
 	};
+
+	/** Handle canvas reponsiveness. */
+	private canvasResponsive = () => {
+		// initial canvas sizes
+		const initialSize: Size = {
+			width: this.canvas.getWidth(),
+			height: this.canvas.getHeight(),
+		};
+
+		// get canvas wrapper width and check if it's undefined
+		const wrapper = this.canvas.getElement().parentElement;
+
+		if (wrapper === null) {
+			throw new Error(
+				"Can't make responsive a canvas without parent element"
+			);
+		}
+
+		wrapper.style.width = "100%";
+
+		// set new canvas' sizes
+		const newHeight =
+			(initialSize.height * wrapper.clientWidth) / initialSize.width;
+		this.canvas.setDimensions({
+			width: wrapper.clientWidth, height: newHeight
+		});
+
+
+		// transformation of the content
+		const scale =
+			this.canvas.getZoom() * (wrapper.clientWidth /initialSize.width);
+		this.canvas.setViewportTransform([scale, 0, 0, scale, 0, 0])
+	}
 }

@@ -13,7 +13,8 @@ requirejs(["main"], (util) => {
 		cornerColor: "rgba(0, 0, 255, 1)",
 		cornerSize: 10,
 		transparentCorners: true,
-	});
+		lockRotation: false,
+	}, true);
 	var file = new util.FileHandler(editor, fileInput);
 
 	// add event listeners

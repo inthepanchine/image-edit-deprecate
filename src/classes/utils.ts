@@ -41,8 +41,7 @@ export class Utils {
 		var canvas = new fabric.Canvas(document.createElement("canvas"));
 
 		// set temp canvas sizes from trimmed image and add group
-		canvas.setWidth(groupSize.width);
-		canvas.setHeight(groupSize.height);
+		canvas.setDimensions(groupSize)
 		canvas.add(objGroup);
 
 		// store base64 value of temp canvas
