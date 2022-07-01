@@ -27,6 +27,7 @@ export class Editor {
 		cornerColor: "rgba(0, 0, 0, 1)",
 		cornerSize: 10,
 		transparentCorners: false,
+		lockRotation: false,
 	};
 
 	/** Selectable region. */
@@ -37,15 +38,20 @@ export class Editor {
 	 *
 	 * @param canvasId The id of the canvas.
 	 * @param size The size of the canvas.
-	 * @param borderColor The selection's border color.
+	 * @param style The style of the image.
+	 * @param isResponsive Defines wether the canvas is reponsive or not.
 	 */
-	constructor(canvasId: string, size: Size, style: ImageStyle) {
+	constructor(
+		canvasId: string,
+		size: Size,
+		style: ImageStyle,
+		isResponsive: boolean
+	) {
 		// init this.canvas
 		this.canvas = new fabric.Canvas(canvasId);
 
 		// style canvas
-		this.canvas.setWidth(size.width);
-		this.canvas.setHeight(size.height);
+		this.canvas.setDimensions(size);
 
 		// init selection
 		this.regionSelection = new Selection(this);
@@ -56,12 +62,18 @@ export class Editor {
 		// on selection update or create bring the target on front
 		this.canvas.on("selection:updated", (e) => e.target?.bringToFront());
 		this.canvas.on("selection:created", (e) => e.target?.bringToFront());
+
+		// if canvas has to be responsive add event listener on window resize
+		if (isResponsive) {
+			this.canvasResponsive();
+			window.addEventListener("resize", () => this.canvasResponsive());
+		}
 	}
 
 	/**
-	 * Draw an image on the editor
+	 * Draw an image on the editor.
 	 *
-	 * @param img The image to load
+	 * @param img The image to load.
 	 */
 	drawImage = (img: CanvasImage) => {
 		// create new fabric image
@@ -76,15 +88,23 @@ export class Editor {
 
 		// apply style to image
 		imgToLoad.set(this.imgStyle);
+		
+		// if rotation is disable hide rotating point
+		if (this.imgStyle.lockRotation) {
+			imgToLoad.controls = {
+				...fabric.Image.prototype.controls,
+				mtr: new fabric.Control({ visible: false })
+			}
+		}
 
 		// draw image on this.canvas
 		this.canvas.add(imgToLoad);
 	};
 
 	/**
-	 * Remove the object(s) passed as argument
+	 * Remove the object(s) passed as argument.
 	 *
-	 * @param objToRemove The objects to remove
+	 * @param objToRemove The objects to remove.
 	 */
 	removeObject = (objToRemove: fabric.Object[] | fabric.Object) => {
 		// if param is an array loop through it and remove each element
@@ -98,7 +118,7 @@ export class Editor {
 		}
 	};
 
-	/** Crop selected region of image */
+	/** Crop selected region of image. */
 	cropImage = () => {
 		// get selected region
 		const region = this.regionSelection.getSelection();
@@ -127,9 +147,10 @@ export class Editor {
 	};
 
 	/**
-	 * Blur selected region of image
+	 * Blur selected region of image.
 	 *
-	 * @param value The blur's value, in a range from 0 to 1. Its default value is 1s default value is 1
+	 * @param value The blur's value, in a range from 0 to 1. Its default value
+	 * is 1s default value is 1.
 	 */
 	blurRegion = (value: number = 1) => {
 		// get selected region
@@ -176,14 +197,50 @@ export class Editor {
 		blurredRegion.applyFilters();
 
 		// create a group containing the blurred region and the image to blur
-		const blurredImage = new fabric.Group(
+		// and create a image from it
+		const blurredGroup = new fabric.Group(
 			[region.relativeTo, blurredRegion],
 			this.imgStyle,
 		);
+
+		const blurredImage = new fabric.Image(blurredGroup.toCanvasElement())
 
 		// remove old image, add blurred image to the canvas and set it as active object
 		this.canvas.remove(region.relativeTo);
 		this.canvas.add(blurredImage);
 		this.canvas.setActiveObject(blurredImage);
 	};
+
+	/** Handle canvas reponsiveness. */
+	private canvasResponsive = () => {
+		// initial canvas sizes
+		const initialSize: Size = {
+			width: this.canvas.getWidth(),
+			height: this.canvas.getHeight(),
+		};
+
+		// get canvas wrapper width and check if it's undefined
+		const wrapper = this.canvas.getElement().parentElement;
+
+		if (wrapper === null) {
+			throw new Error(
+				"Can't make responsive a canvas without parent element"
+			);
+		}
+
+		wrapper.style.width = "100%";
+
+		// set new canvas' sizes
+		const newHeight =
+			(initialSize.height * wrapper.clientWidth) / initialSize.width;
+		this.canvas.setDimensions({
+			width: wrapper.clientWidth, height: newHeight
+		});
+
+
+		// transformation of the content
+		const scale =
+			this.canvas.getZoom() * (wrapper.clientWidth /initialSize.width);
+		this.canvas.setViewportTransform([scale, 0, 0, scale, 0, 0])
+	}
 }
